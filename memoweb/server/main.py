@@ -76,6 +76,7 @@ client = AsyncIOMotorClient(
     tlsAllowInvalidCertificates=True  # Only for development!
 )
 db = client.memorylane
+scores_collection = db.scores
 
 # Security Configuration
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
