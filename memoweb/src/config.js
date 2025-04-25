@@ -1,1 +1,1 @@
-export const API_BASE_URL = "http://localhost:8000"; // FastAPI backend URL
+export const API_BASE_URL = "https://memolane.onrender.com"; // FastAPI backend URL

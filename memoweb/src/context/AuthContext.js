@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
-            const response = await axios.post('http://localhost:8000/login', {
+            const response = await axios.post('https://memolane.onrender.com/login', {
                 username, password
             });
             
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
-            await axios.post('http://localhost:8000/register', userData);
+            await axios.post('https://memolane.onrender.com/register', userData);
             return await login(userData.username, userData.password);
         } catch (error) {
             throw error.response?.data || error;

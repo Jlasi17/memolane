@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './MemoTap.module.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://memolane.onrender.com';
 
 const COLORS = [
   '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF',
