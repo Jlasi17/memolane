@@ -1,0 +1,60 @@
+/* src/components/Auth/RoleSelection.css */
+.role-selection-container {
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .roles-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .role-card {
+    width: 120px;
+    height: 140px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 193, 7, 0);
+    transition: all 0.3s ease;
+    z-index: 0;
+  }
+  
+  .role-card.hovered {
+    transform: scale(1.1);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .role-card.hovered::before {
+    background: rgba(255, 193, 7, 0.2);
+  }
+  
+  .role-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    z-index: 1;
+  }
+  
+  .role-card span {
+    font-weight: 500;
+    z-index: 1;
+  }

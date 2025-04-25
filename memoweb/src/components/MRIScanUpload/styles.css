@@ -1,0 +1,58 @@
+/* src/components/MRIScanUpload/styles.css */
+.mri-scan-upload {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .mri-scan-upload h3 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+  }
+  
+  .mri-scan-upload .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .mri-scan-upload label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #34495e;
+  }
+  
+  .mri-scan-upload input[type="text"],
+  .mri-scan-upload input[type="date"],
+  .mri-scan-upload textarea,
+  .mri-scan-upload input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  .mri-scan-upload textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+  
+  .upload-btn {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+  }
+  
+  .upload-btn:hover {
+    background-color: #219653;
+  }

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fastapi-app
+    env: python
+    buildCommand: ""
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: CLOUDINARY_API_KEY
+        value: your_key_here
+      - key: CLOUDINARY_API_SECRET
+        value: your_secret_here
+      - key: CLOUDINARY_CLOUD_NAME
+        value: your_cloud_name_here

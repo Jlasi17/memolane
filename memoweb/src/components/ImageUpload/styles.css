@@ -1,0 +1,98 @@
+/* src/components/ImageUpload/styles.css */
+.image-upload {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .image-upload h3 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+  }
+  
+  .image-upload .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .image-upload label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #34495e;
+  }
+  
+  .image-upload input[type="text"],
+  .image-upload input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  .image-upload .upload-btn {
+    background-color: #e67e22;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s;
+  }
+  
+  .image-upload .upload-btn:hover {
+    background-color: #d35400;
+  }
+
+  /* Add to your styles.css */
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-success button, 
+.alert-error button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

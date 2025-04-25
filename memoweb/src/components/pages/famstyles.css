@@ -1,0 +1,368 @@
+/* Base Styles */
+.family-dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Alert Styles */
+.family-alert-error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dismiss-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 0 3px 10px;
+}
+
+/* Navigation Styles */
+.family-dashboard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f5f5;
+  color: #555;
+}
+
+.nav-btn.active {
+  background: #4285f4;
+  color: white;
+  box-shadow: 0 2px 5px rgba(66, 133, 244, 0.3);
+}
+
+.nav-btn i {
+  font-size: 1.1rem;
+}
+
+/* Profile and Notifications */
+.profile-btn, .notifications-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.profile-btn {
+  background: #f5f5f5;
+}
+
+.notifications-btn {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #f44336;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+/* Dropdowns */
+.profile-dropdown, .notifications-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 200px;
+  overflow: hidden;
+}
+
+.profile-dropdown {
+  padding: 15px;
+}
+
+.profile-info {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-info h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.1rem;
+}
+
+.profile-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 8px 0;
+  cursor: pointer;
+  color: #f44336;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.notifications-dropdown {
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Content Styles */
+.family-dashboard-content {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+  position: relative;
+  min-height: 500px;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4285f4;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Registration Section */
+.registration-section {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.section-header h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.section-header p {
+  color: #666;
+}
+
+.registration-type-selector {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.type-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f5f5;
+  color: #555;
+}
+
+.type-btn.active {
+  background: #4285f4;
+  color: white;
+}
+
+.link-patient-form {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.submit-btn {
+  background: #4285f4;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.submit-btn:hover {
+  background: #3367d6;
+}
+
+.submit-btn:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0 10px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .family-dashboard-nav {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .nav-left, .nav-right {
+    justify-content: center;
+  }
+
+  .registration-type-selector {
+    flex-direction: column;
+  }
+
+  .nav-btn, .type-btn {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* Import Font Awesome for icons */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
