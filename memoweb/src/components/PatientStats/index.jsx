@@ -1,7 +1,7 @@
 import './styles.css';
 import { useState, useEffect } from 'react';
 
-const PatientStats = ({ onMRIClick, onImageClick , apiBaseUrl }) => {
+const PatientStats = ({ onMRIClick, onImageClick, apiBaseUrl }) => {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,10 +46,10 @@ const PatientStats = ({ onMRIClick, onImageClick , apiBaseUrl }) => {
       default: return "Stage not assessed";
     }
   };
-  if (loading) return <div>Loading patient data...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (patients.length === 0) return <div>No patients found</div>;
 
+  if (loading) return <div className="loading-message">Loading patient data...</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
+  if (patients.length === 0) return <div className="no-patients">No patients found</div>;
 
   return (
     <div className="patient-stats-container">
@@ -63,6 +63,7 @@ const PatientStats = ({ onMRIClick, onImageClick , apiBaseUrl }) => {
             const patient = patients.find(p => p._id === e.target.value);
             setSelectedPatient(patient);
           }}
+          className="patient-dropdown"
         >
           {patients.map(patient => (
             <option key={patient._id} value={patient._id}>
@@ -75,7 +76,7 @@ const PatientStats = ({ onMRIClick, onImageClick , apiBaseUrl }) => {
       {/* Selected patient details */}
       {selectedPatient && (
         <div className="patient-details">
-          <h3>{selectedPatient.name}'s Health Overview</h3>
+          <h3 className="patient-name">{selectedPatient.name}'s Health Overview</h3>
           
           <div className="patient-info-grid">
             <div className="info-card">
@@ -84,25 +85,36 @@ const PatientStats = ({ onMRIClick, onImageClick , apiBaseUrl }) => {
             </div>
             
             <div className="info-card">
-            <span className="info-label">Alzheimer's Stage</span>
+              <span className="info-label">Gender</span>
+              <span className="info-value">{selectedPatient.gender}</span>
+            </div>
+            
+            <div className="info-card">
+              <span className="info-label">Alzheimer's Stage</span>
               <span className="info-value">{getStageDescription(selectedPatient.alzheimer_stage)}</span>
             </div>
             
-            {/* Add more patient details as needed */}
+            <div className="info-card">
+              <span className="info-label">Last Checkup</span>
+              <span className="info-value">
+                {selectedPatient.last_scan_date ? new Date(selectedPatient.last_scan_date).toLocaleDateString() : 'N/A'}
+              </span>
+            </div>
           </div>
 
           <div className="patient-actions">
             <button 
-              className="btn-upload"
+              className="action-btn mri-btn"
               onClick={() => onMRIClick(selectedPatient)}
             >
-              <i className="icon-mri"></i>Upload MRI Scan
-              </button>
+              <i className="fas fa-brain"></i> Upload MRI Scan
+            </button>
+            
             <button 
-              className="btn-upload"
+              className="action-btn image-btn"
               onClick={() => onImageClick(selectedPatient)}
             >
-             <i className="icon-image"></i> Upload Patient Image
+              <i className="fas fa-image"></i> Upload Patient Image
             </button>
           </div>
         </div>
@@ -112,4 +124,3 @@ const PatientStats = ({ onMRIClick, onImageClick , apiBaseUrl }) => {
 };
 
 export default PatientStats;
-

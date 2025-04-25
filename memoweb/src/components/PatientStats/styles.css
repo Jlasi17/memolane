@@ -1,9 +1,25 @@
 /* Patient Stats Container */
 .patient-stats-container {
-  background: white;
+  background-color: #f8f9fa;
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Loading and Error Messages */
+.loading-message, .no-patients {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+}
+
+.error-message {
+  padding: 20px;
+  text-align: center;
+  color: #dc3545;
+  font-size: 16px;
 }
 
 /* Patient Selector */
@@ -14,167 +30,129 @@
 .patient-selector label {
   display: block;
   margin-bottom: 8px;
-  font-weight: 600;
+  font-weight: 500;
+  color: #495057;
 }
 
-.patient-selector select {
+.patient-dropdown {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
+  padding: 10px 15px;
+  border: 1px solid #ced4da;
   border-radius: 5px;
   font-size: 16px;
+  background-color: white;
+  transition: border-color 0.15s ease-in-out;
 }
 
-.patient-actions {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
+.patient-dropdown:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
+
 /* Patient Details */
 .patient-details {
-  margin-top: 20px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.patient-name {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* Info Grid */
 .patient-info-grid {
-  display: flex;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
   margin-bottom: 20px;
 }
 
 .info-card {
-  flex: 1;
-  background: #ecf0f1;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  
-}
-
-.info-label {
-  font-size: 13px;
-  color: #7f8c8d;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.info-value {
-  font-size: 22px;
-  font-weight: 600;
-  margin-top: 8px;
-  color: #2c3e50;
-}
-
-/* Buttons */
-.btn-upload {
-  flex: 1;
-  padding: 12px;
-  border: none;
+  background-color: #f8f9fa;
   border-radius: 8px;
-  background: #3498db;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background 0.2s;
-}
-
-.btn-upload:hover {
-  background: #2980b9;
-}
-.icon-mri:before {
-  content: "🖥️";
-}
-
-.icon-image:before {
-  content: "🖼️";
-}
-
-/* Status Messages */
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-
-.error-alert {
-  color: #e74c3c;
   padding: 15px;
-  background: #fdecea;
-  border-radius: 5px;
-  margin: 20px 0;
-}
-
-.no-patients {
   text-align: center;
-  padding: 20px;
-  color: #666;
-}
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.close-btn {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background: #ccc;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-
-
-.info-card {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
 }
 
 .info-label {
   display: block;
   font-size: 14px;
-  color: #666;
+  color: #6c757d;
+  margin-bottom: 5px;
 }
 
 .info-value {
   display: block;
   font-size: 18px;
-  font-weight: bold;
-  margin-top: 5px;
+  font-weight: 600;
+  color: #343a40;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .patient-actions {
-    flex-direction: column;
+/* Action Buttons */
+.patient-actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 200px;
+}
+
+.action-btn i {
+  font-size: 16px;
+}
+
+.mri-btn {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.mri-btn:hover {
+  background-color: #bbdefb;
+}
+
+.image-btn {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.image-btn:hover {
+  background-color: #c8e6c9;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .patient-info-grid {
+    grid-template-columns: 1fr 1fr;
   }
   
-  .stats-grid {
+  .action-btn {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .patient-info-grid {
     grid-template-columns: 1fr;
   }
 }
