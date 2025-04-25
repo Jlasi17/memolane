@@ -9,7 +9,7 @@ import {
 } from '../index';
 import './famstyles.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://memolane.onrender.com';
+const API_BASE_URL = 'https://memolane.onrender.com' || 'https://memolane.onrender.com';
 
 const FamilyHome = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
