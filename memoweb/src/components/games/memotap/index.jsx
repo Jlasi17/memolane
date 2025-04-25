@@ -192,8 +192,8 @@ function MemoTap() {
         <h1 className={styles.gameTitle}>MemoTap</h1>
         
         <div className={styles.gameInfo}>
-          <p>Round: {round}/25</p>
           <p>Score: {score}</p>
+          <p>Round: {round}</p>
           <p>High Score: {highScore}</p>
         </div>
 

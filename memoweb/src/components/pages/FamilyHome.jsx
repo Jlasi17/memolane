@@ -55,7 +55,7 @@ const FamilyHome = () => {
           setActiveTab('register');
           throw new Error('No patient data found');
         }
-        throw new Error(`Failed to fetch patient data: ${response.status}`);
+        throw new Error(`Failed to fetch patient data.please reload the page..: ${response.status}`);
       }
 
       const data = await response.json();
