@@ -1,5 +1,5 @@
 // src/App.js
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthPage from './components/Auth/AuthPage';
 import FamilyHome from './components/pages/FamilyHome';
 import LoginForm from './components/Auth/LoginForm';
