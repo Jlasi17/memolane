@@ -63,7 +63,7 @@ Path(UPLOAD_DIR2).mkdir(parents=True, exist_ok=True)
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Your React app URL
+    allow_origins=["https://jlasi17.github.io"],  # Your React app URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
