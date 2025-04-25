@@ -63,11 +63,10 @@ Path(UPLOAD_DIR2).mkdir(parents=True, exist_ok=True)
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://jlasi17.github.io"],  # Your React app URL
+    allow_origins=["https://jlasi17.github.io/memolane","http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"]
 )
 
 # MongoDB Configuration
