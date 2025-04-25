@@ -3,7 +3,7 @@ node_modules/
 .env
 gcp-hml-414704-ac287ddad3b5.json
 dist/
-build/
+
 
 # Python
 __pycache__/
