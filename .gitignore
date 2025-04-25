@@ -1,0 +1,31 @@
+# Node.js
+node_modules/
+.env
+gcp-hml-414704-ac287ddad3b5.json
+dist/
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+venv/
+uploads/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# React
+*.env.local
+*.env.development
+*.env.production
+.DS_Store
+
+# Test coverage
+coverage/
+
+# MacOS
+.DS_Store
