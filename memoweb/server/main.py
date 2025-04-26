@@ -390,7 +390,7 @@ async def send_patient_credentials(email: str, patient_id: str, passcode: str):
         <h2>Welcome to Memory Lane</h2>
         <p><strong>Patient ID:</strong> {patient_id}</p>
         <p><strong>Temporary Passcode:</strong> {passcode}</p>
-        <p>Please login at: http://localhost:3000/login</p>
+        <p>Please login at: https://jlasi17.github.io/memolane/#/</p>
         """
         
         msg.attach(MIMEText(body, 'html'))
