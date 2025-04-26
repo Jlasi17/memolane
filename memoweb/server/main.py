@@ -53,12 +53,6 @@ cloudinary.config(
   secure=True
 )
 
-UPLOAD_DIR = "uploads/images"
-Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
-
-# Configure upload directory
-UPLOAD_DIR2 = "uploads/mri_scans"
-Path(UPLOAD_DIR2).mkdir(parents=True, exist_ok=True)
 
 # CORS Configuration
 app.add_middleware(
