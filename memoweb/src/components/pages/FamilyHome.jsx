@@ -8,6 +8,7 @@ import {
   Notifications
 } from '../index';
 import './famstyles.css';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = 'https://memolane.onrender.com' || 'https://memolane.onrender.com';
 
@@ -25,7 +26,7 @@ const FamilyHome = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [username, setUsername] = useState('');
   const [showNotifications, setShowNotifications] = useState(false); // Add this to your existing state
-
+  const navigate = useNavigate();
 
   // Check if patient exists on component mount
   useEffect(() => {
@@ -317,7 +318,7 @@ const FamilyHome = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/'; 
+    navigate('/');
   };
 
   useEffect(() => {

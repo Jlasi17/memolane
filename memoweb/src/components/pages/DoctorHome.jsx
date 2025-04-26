@@ -8,6 +8,7 @@ import {
   Notifications
 } from '../index';
 import './docstyles.css';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = 'https://memolane.onrender.com' || 'https://memolane.onrender.com';
 
@@ -29,7 +30,7 @@ const DoctorHome = () => {
   const [appointments, setAppointments] = useState([]);
   const [medications, setMedications] = useState([]);
   const [patients, setPatients] = useState([]);
-
+  const navigate = useNavigate();
   // Fetch all necessary data on component mount
   useEffect(() => {
     const initializeData = async () => {
@@ -398,7 +399,7 @@ const handleCompleteAppointment = async (appointmentId) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    window.location.href = '/'; 
+    navigate('/');
   };
 
   useEffect(() => {
