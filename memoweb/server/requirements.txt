@@ -12,3 +12,4 @@ pillow
 python-multipart
 email-validator
 cloudinary
+react-calendar
