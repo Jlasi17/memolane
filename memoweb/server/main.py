@@ -1,8 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends, Request, status, UploadFile, File, Form, BackgroundTasks, APIRouter
+from fastapi import FastAPI, HTTPException, Depends, Request, status, UploadFile, File, Form, BackgroundTasks,APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import torch
 from pydantic import BaseModel
@@ -53,6 +52,12 @@ cloudinary.config(
   secure=True
 )
 
+UPLOAD_DIR = "uploads/images"
+Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
+
+# Configure upload directory
+UPLOAD_DIR2 = "uploads/mri_scans"
+Path(UPLOAD_DIR2).mkdir(parents=True, exist_ok=True)
 
 # CORS Configuration
 app.add_middleware(
@@ -100,15 +105,24 @@ def load_model(model_path="../models/resnet18_alzheimer_model.pth"):
 model = load_model()
 
 def convert_mongo_doc(doc):
+    """Recursively convert MongoDB documents to JSON-serializable format"""
     if doc is None:
         return None
-    if isinstance(doc, list):
-        return [convert_mongo_doc(item) for item in doc]
+    if isinstance(doc, (str, int, float, bool)):
+        return doc
     if isinstance(doc, ObjectId):
         return str(doc)
+    if isinstance(doc, datetime):
+        return doc.isoformat()
+    if isinstance(doc, list):
+        return [convert_mongo_doc(item) for item in doc]
     if isinstance(doc, dict):
         return {k: convert_mongo_doc(v) for k, v in doc.items()}
-    return doc
+    # Handle other cases (like custom objects with __dict__)
+    if hasattr(doc, '__dict__'):
+        return convert_mongo_doc(doc.__dict__)
+    return str(doc)  # Fallback for other types
+
 
 # Pydantic Models
 class User(BaseModel):
@@ -207,6 +221,7 @@ class AppointmentResponse(BaseModel):
     time: str
     description: str
     created_at: datetime
+    completed: bool = False
 
     class Config:
         validate_by_name = True
@@ -220,6 +235,7 @@ class MedicationCreate(BaseModel):
     duration: int
     notes: str = None
 
+# TODO:
 class MedicationResponse(BaseModel):
     id: str
     patient_id: str
@@ -227,11 +243,24 @@ class MedicationResponse(BaseModel):
     doctor_id: str
     name: str
     time: List[str]
-    duration: int
+    duration: Optional[int] = None
     notes: str
     created_at: datetime
-    expires_at: datetime
+    expires_at: Optional[datetime] = None
+    taken_times: List[dict] = Field(default_factory=list)
 
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat(),
+            ObjectId: lambda v: str(v)
+        }
+
+class AppointmentStatusUpdate(BaseModel):
+    completed: bool
+
+class MedicationStatusUpdate(BaseModel):
+    taken: bool
+    time: str
 
 class ScoreData(BaseModel):
     player_name: str
@@ -478,7 +507,8 @@ async def get_patient_stats(current_user: dict = Depends(get_current_user)):
     patient = await db.patients.find_one({
         "$or": [
             {"user_id": current_user["username"]},
-            {"caretakers": current_user["username"]}
+            {"caretakers": current_user["username"]},
+            {"patient_id": current_user["username"]}
         ]
     })
     
@@ -489,17 +519,21 @@ async def get_patient_stats(current_user: dict = Depends(get_current_user)):
         )
     
     return {
-        "patient": {
+        "patient": convert_mongo_doc({
             "name": patient["name"],
             "age": patient["age"],
             "gender": patient["gender"],
-            "stage": patient.get("stage", "unknown")
-        },
+            "patient_id": patient["patient_id"],
+            "alzheimer_stage": patient.get("alzheimer_stage", "unknown"),
+            "appointments": patient.get("appointments", []),
+            "medications": patient.get("medications", [])
+        }),
         "stats": {
             "last_updated": datetime.utcnow(),
             "medication_adherence": patient.get("adherence", 0)
         }
     }
+
 
 @app.get("/patients", response_model=List[Patient])
 async def get_patients(current_user: dict = Depends(get_current_user)):
@@ -521,43 +555,65 @@ async def startup_db_client():
     await db.command("ping")
     print("Successfully connected to MongoDB!")
 
+    collections = await db.list_collection_names()
+    print("Existing collections:", collections)
+    
+    if "scores" not in collections:
+        await db.create_collection("scores")
+        print("Created scores collection")
+    
+    if "game_users" not in collections:
+        await db.create_collection("game_users")
+        print("Created game_users collection")
+
 @app.on_event("startup")
 async def create_indexes():
     await db.patients.create_index([("patient_id", 1)])
     await db.patients.create_index([("alzheimer_stage", 1)])
     await db.patients.create_index([("last_scan_date", -1)])
     await db.appointments.create_index([("doctor_id", 1)])
-    await db.appointments.create_index([("patient_id", 1)])
     await db.appointments.create_index([("date", 1), ("time", 1)])
-    await db.medications.create_index([("patient_id", 1)])
     await db.medications.create_index([("expires_at", 1)])
+    await db.scores.create_index([("game_name", 1)])
+    await db.scores.create_index([("score", -1)])
+    await db.scores.create_index([("date", -1)])
 
-@app.post("/api/notifications")
-async def create_notification(notification: Notification, current_user: dict = Depends(get_current_user)):
-    notification_dict = notification.dict()
-    notification_dict["user_id"] = current_user["username"]
-    result = await db.notifications.insert_one(notification_dict)
-    return {"id": str(result.inserted_id)}
 
 @app.get("/api/notifications")
 async def get_notifications(current_user: dict = Depends(get_current_user)):
-    notifications = await db.notifications.find(
-        {"user_id": current_user["username"]}
-    ).sort("created_at", -1).to_list(100)
-    return notifications
+    try:
+        notifications = []
+        async for notification in db.notifications.find(
+            {"user_id": current_user["username"]}
+        ).sort("created_at", -1).limit(100):
+            notifications.append(convert_mongo_doc(notification))
+        
+        return notifications
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/api/notifications")
+async def create_notification(notification: Notification, current_user: dict = Depends(get_current_user)):
+    try:
+        notification_dict = notification.dict()
+        notification_dict["user_id"] = current_user["username"]
+        result = await db.notifications.insert_one(notification_dict)
+        return {"id": str(result.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/user_patients")
 async def get_user_patients(current_user: dict = Depends(get_current_user)):
     try:
         patients = []
         async for patient in db.patients.find({"caretakers": current_user["username"]}):
-            patient["_id"] = str(patient["_id"])
-            patients.append(patient)
+            patients.append(convert_mongo_doc(patient))
         
         return {"patients": patients}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @app.get("/api/user")
 async def get_user(current_user: dict = Depends(get_current_user)):
     return {"username": current_user["username"]}
@@ -904,26 +960,60 @@ async def get_patient(
 # Appointments Endpoints
 @app.get("/api/appointments", response_model=List[AppointmentResponse])
 async def get_appointments(
+    patient_id: Optional[str] = None,
     current_user: dict = Depends(get_current_user)
 ):
-    """Get all appointments for the current doctor"""
-    appointments = []
-    async for appt in db.appointments.find(
-        {"doctor_id": current_user["username"]}
-    ).sort([("date", 1), ("time", 1)]):
-        patient = await db.patients.find_one({"patient_id": appt["patient_id"]})
-        appointments.append({
-            "id": str(appt["_id"]),  # Transform _id to id
-            "patient_id": appt["patient_id"],
-            "patient_name": patient["name"] if patient else "Unknown",
-            "doctor_id": appt["doctor_id"],
-            "date": appt["date"],
-            "time": appt["time"],
-            "description": appt.get("description", ""),
-            "created_at": appt["created_at"]
-        })
-    return appointments
+    """Get all appointments for the current user"""
+    try:
+        # Build query based on user role
+        query = {}
+        
+        if current_user["role"] == "doctor":
+            query["doctor_id"] = current_user["username"]
+            if patient_id:
+                query["patient_id"] = patient_id
+        else:
+            # For patients/family, only show their own appointments
+            patient = await db.patients.find_one({
+                "$or": [
+                    {"user_id": current_user["username"]},
+                    {"caretakers": current_user["username"]},
+                    {"patient_id": current_user["username"]}
+                ]
+            })
+            
+            if not patient:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Patient not found or access denied"
+                )
+            
+            query["patient_id"] = patient["patient_id"]
 
+        appointments = []
+        async for appt in db.appointments.find(query).sort([("date", 1), ("time", 1)]):
+            patient = await db.patients.find_one({"patient_id": appt["patient_id"]})
+            doctor = await db.users.find_one({"username": appt["doctor_id"]})
+            appt_date = appt["date"]
+            if isinstance(appt_date, datetime):
+                appt_date = appt_date.strftime("%Y-%m-%d")
+            appointments.append({
+                "id": str(appt["_id"]),
+                "patient_id": appt["patient_id"],
+                "patient_name": patient["name"] if patient else "Unknown",
+                "doctor_id": appt["doctor_id"],
+                "doctor_name": doctor.get("full_name", doctor["username"]) if doctor else "Unknown",
+                "date": appt_date,
+                "time": appt["time"],
+                "description": appt.get("description", ""),
+                "created_at": appt["created_at"],
+                "completed": appt.get("completed", False)  # Include completed status
+            })
+        
+        return appointments
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/appointments", response_model=AppointmentResponse)
 async def create_appointment(
@@ -1017,28 +1107,149 @@ async def delete_appointment(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-
-# Medications Endpoints
-@app.get("/api/medications", response_model=List[MedicationResponse])
-async def get_medications(
+@app.put("/api/appointments/{appointment_id}/status")
+async def update_appointment_status(
+    appointment_id: str,
+    status: AppointmentStatusUpdate,
     current_user: dict = Depends(get_current_user)
 ):
-    medications = []
-    async for med in db.medications.find(
-        {"doctor_id": current_user["username"]}
-    ).sort("created_at", -1):
-        patient = await db.patients.find_one({"patient_id": med["patient_id"]})
-        expires_at = med["created_at"] + timedelta(days=med["duration"])
-        med_dict = {
-            **med,
-            "id": str(med["_id"]),
-            "patient_name": patient["name"] if patient else "Unknown",
-            "expires_at": expires_at
+    try:
+        # Validate appointment_id
+        try:
+            appointment_oid = ObjectId(appointment_id)
+        except:
+            raise HTTPException(status_code=400, detail="Invalid appointment ID format")
+
+        # Verify appointment exists and user has access
+        appointment = await db.appointments.find_one({
+            "_id": appointment_oid,
+            "$or": [
+                {"patient_id": current_user["username"]},  # Patient can mark their own appointments
+                {"doctor_id": current_user["username"]}    # Doctor can mark their appointments
+            ]
+        })
+        
+        if not appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found or access denied")
+
+        # Update status
+        await db.appointments.update_one(
+            {"_id": appointment_oid},
+            {"$set": {"completed": status.completed}}
+        )
+
+        return {"success": True, "message": "Appointment status updated"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/medications/{medication_id}/status")
+async def update_medication_status(
+    medication_id: str,
+    status: MedicationStatusUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        # Validate medication_id
+        try:
+            medication_oid = ObjectId(medication_id)
+        except:
+            raise HTTPException(status_code=400, detail="Invalid medication ID format")
+
+        # Verify medication exists and user has access
+        medication = await db.medications.find_one({
+            "_id": medication_oid,
+            "patient_id": current_user["username"]  # Only patient can mark medications as taken
+        })
+        
+        if not medication:
+            raise HTTPException(status_code=404, detail="Medication not found or access denied")
+
+        # Update status - track each time it's taken
+        update_data = {
+            "$push": {
+                "taken_times": {
+                    "time": status.time,
+                    "taken_at": datetime.utcnow()
+                }
+            }
         }
-        del med_dict["_id"]
-        medications.append(med_dict)
-    return medications
+
+        await db.medications.update_one(
+            {"_id": medication_oid},
+            update_data
+        )
+
+        return {"success": True, "message": "Medication status updated"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Medications Endpoints
+from datetime import datetime
+
+@app.get("/api/medications", response_model=List[MedicationResponse])
+async def get_medications(
+    patient_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        query = {}
+        
+        if current_user["role"] == "doctor":
+            query["doctor_id"] = current_user["username"]
+            if patient_id:
+                query["patient_id"] = patient_id
+        else:
+            patient = await db.patients.find_one({
+                "$or": [
+                    {"user_id": current_user["username"]},
+                    {"caretakers": current_user["username"]},
+                    {"patient_id": current_user["username"]}
+                ]
+            })
+            
+            if not patient:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Patient not found or access denied"
+                )
+            
+            query["patient_id"] = patient["patient_id"]
+
+        medications = []
+        async for med in db.medications.find(query).sort("created_at", -1):
+            patient = await db.patients.find_one({"patient_id": med["patient_id"]})
+            
+            time_list = med.get("time", [])
+            if isinstance(time_list, str):
+                time_list = [time_list]
+
+            created_at = med.get("created_at")
+            expires_at = med.get("expires_at")
+            
+            med_data = {
+                "id": str(med["_id"]),
+                "patient_id": med["patient_id"],
+                "patient_name": patient["name"] if patient else "Unknown",
+                "doctor_id": med["doctor_id"],
+                "name": med["name"],
+                "time": time_list,
+                "duration": med.get("duration", 0),
+                "notes": med.get("notes", ""),
+                "created_at": created_at.isoformat() if isinstance(created_at, datetime) else created_at,
+                "expires_at": expires_at.isoformat() if isinstance(expires_at, datetime) else expires_at,
+                "taken_times": med.get("taken_times", [])  # Include taken times
+            }
+            medications.append(MedicationResponse(**med_data))
+        
+        return medications
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/medications", response_model=MedicationResponse)
 async def create_medication(
@@ -1053,7 +1264,7 @@ async def create_medication(
                 detail=f"Time must be any of: {', '.join(valid_times)}"
             )
 
-        if medication.duration < 1:
+        if  not medication.duration or medication.duration < 1:
             raise HTTPException(
                 status_code=400,
                 detail="Duration must be at least 1 day"
@@ -1177,28 +1388,6 @@ async def clean_expired_medications():
         print(f"Error cleaning expired medications: {str(e)}")
 
 
-
-@app.post("/save-score")
-async def save_score(score_data: ScoreData):
-    # Save current score
-    scores_collection.insert_one(score_data.dict())
-    
-    # Check if it's a high score
-    high_score = scores_collection.find_one(sort=[("score", -1)])
-    
-    return {
-        "message": "Score saved successfully",
-        "is_high_score": high_score["_id"] == score_data.score
-    }
-
-@app.get("/high-scores")
-async def get_high_scores(limit: int = 10):
-    scores = list(scores_collection.find(
-        {},
-        {"_id": 0, "player_name": 1, "score": 1, "rounds_completed": 1}
-    ).sort("score", -1).limit(limit))
-    return {"scores": scores}
-
 @app.get("/generate-sequence")
 async def generate_sequence(round_number: int):
     # Determine number of colors based on round
@@ -1222,4 +1411,285 @@ async def generate_sequence(round_number: int):
         "sequence": sequence,
         "num_colors": num_colors
     }
+
+
+# TODO:patient home all the new fuctions 
+
+
+# Add this to your models section
+class GameUser(BaseModel):
+    patient_id: str
+    name: str
+    level: int = 1
+    exp: int = 0
+    badges: List[str] = Field(default_factory=list)
+    games_played: dict[str, int] = Field(default_factory=dict)
+    created_at: datetime = datetime.utcnow()
+    last_played: Optional[datetime] = None
+
+# Add these endpoints
+@app.post("/api/game_user/initialize")
+async def initialize_game_user(
+    patient_id: str = Form(...),
+    name: str = Form(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Initialize a game user profile if it doesn't exist"""
+    try:
+        # Check if patient exists and user has access
+        patient = await db.patients.find_one({
+            "patient_id": patient_id,
+            "$or": [
+                {"user_id": current_user["username"]},
+                {"caretakers": current_user["username"]}
+            ]
+        })
+        
+        if not patient:
+            raise HTTPException(status_code=404, detail="Patient not found or access denied")
+
+        # Check if game user already exists
+        existing = await db.game_users.find_one({"patient_id": patient_id})
+        if existing:
+            return convert_mongo_doc(existing)
+
+        # Create new game user
+        game_user = {
+            "patient_id": patient_id,
+            "name": name,
+            "level": 1,
+            "exp": 0,
+            "badges": [],
+            "games_played": {},
+            "created_at": datetime.utcnow()
+        }
+
+        result = await db.game_users.insert_one(game_user)
+        game_user["_id"] = result.inserted_id
+        
+        return convert_mongo_doc(game_user)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/game_user/{patient_id}")
+async def get_game_user(
+    patient_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get game user profile"""
+    try:
+        print(f"Fetching game user for patient: {patient_id}")
+        print(f"Current user: {current_user['username']}")
+
+        # Verify patient exists and user has access - using same logic as patient_stats
+        patient = await db.patients.find_one({
+            "$or": [
+                {"user_id": current_user["username"]},
+                {"caretakers": current_user["username"]},
+                {"patient_id": current_user["username"]}
+            ],
+            "patient_id": patient_id  # Also ensure we're getting the requested patient
+        })
+        
+        if not patient:
+            print(f"Patient {patient_id} not found or access denied for user {current_user['username']}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Patient not found or access denied"
+            )
+
+        # Check for existing game user
+        game_user = await db.game_users.find_one({"patient_id": patient_id})
+        
+        if not game_user:
+            print(f"Creating new game user for patient {patient_id}")
+            game_user = {
+                "patient_id": patient_id,
+                "name": patient.get("name", "Player"),
+                "level": 1,
+                "exp": 0,
+                "badges": [],
+                "games_played": {},
+                "created_at": datetime.utcnow()
+            }
+            
+            try:
+                result = await db.game_users.insert_one(game_user)
+                game_user["_id"] = result.inserted_id
+                print(f"Created new game user: {game_user}")
+            except Exception as insert_error:
+                print(f"Error creating game user: {str(insert_error)}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to create game profile"
+                )
+
+        return convert_mongo_doc(game_user)
+        
+    except HTTPException:
+        # Re-raise HTTPExceptions (like our 404)
+        raise
+    except Exception as e:
+        print(f"ERROR in get_game_user: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
+
+class Score(BaseModel):
+    patient_id: str
+    game_name: str
+    score: int
+    rounds_completed: int
+    date: datetime = Field(default_factory=datetime.utcnow)
+    is_high_score: bool = False
+
+class PatientStatsResponse(BaseModel):
+    patient: dict
+    stats: dict
+    
+    class Config:
+        json_encoders = {
+            ObjectId: str,
+            datetime: lambda v: v.isoformat()
+        }
+
+@app.post("/api/save-score")
+async def save_score(
+    score_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    print(f"Attempting to save score for user: {current_user['username']}")
+    print(f"Received score data: {score_data}")
+    
+    try:
+        # Find patient record
+        patient_record = await db.game_users.find_one({
+            "patient_id": current_user["username"]
+        })
+        
+        if not patient_record:
+            # Initialize game user if not found
+            patient_record = {
+                "patient_id": current_user["username"],
+                "name": "Player",
+                "level": 1,
+                "exp": 0,
+                "badges": [],
+                "games_played": {"memotap": 0, "high_score": 0},
+                "created_at": datetime.utcnow()
+            }
+            await db.game_users.insert_one(patient_record)
+        
+        # Check if games_played exists and is an object
+        if "games_played" not in patient_record or not isinstance(patient_record.get("games_played"), dict):
+            await db.game_users.update_one(
+                {"patient_id": current_user["username"]},
+                {"$set": {"games_played": {"memotap": 0, "high_score": 0}}}
+            )
+
+        # Check for existing high score
+        high_score = await db.scores.find_one(
+            {"patient_id": current_user["username"], "game_name": "memotap"},
+            sort=[("score", -1)]
+        )
+
+        is_high_score = not high_score or score_data["score"] > high_score["score"]
+        # Calculate EXP to add (10 EXP per point scored)
+        exp_to_add = score_data["score"] * 10
+        current_exp = patient_record.get("exp", 0)
+        current_level = patient_record.get("level", 1)
+        
+        # Calculate new EXP and handle level ups
+        new_exp = current_exp + exp_to_add
+        levels_gained = 0
+        
+        # Calculate how many levels should be gained
+        while new_exp >= current_level * 100:
+            new_exp -= current_level * 100
+            current_level += 1
+            levels_gained += 1
+
+        # Save the score
+        score_doc = {
+            "patient_id": current_user["username"],
+            "game_name": "memotap",
+            "score": score_data["score"],
+            "rounds_completed": score_data["rounds_completed"],
+            "date": datetime.utcnow(),
+            "is_high_score": is_high_score
+        }
+        result = await db.scores.insert_one(score_doc)
+
+        # Prepare update data
+        update_data = {
+            "$inc": {
+                "games_played.memotap": 1,
+                "level": levels_gained
+            },
+            "$set": {
+                "exp": new_exp,
+                "last_played": datetime.utcnow()
+            }
+        }
+        
+        if is_high_score:
+            update_data["$max"] = {"games_played.high_score": score_data["score"]}
+
+        # Add badge if player leveled up
+        if levels_gained > 0:
+            badge_name = f"Level {current_level} Achiever"
+            update_data["$addToSet"] = {"badges": badge_name}
+
+        await db.game_users.update_one(
+            {"patient_id": current_user["username"]},
+            update_data
+        )
+
+        return {
+            "message": "Score saved successfully",
+            "current_level": current_level,
+            "current_exp": new_exp,
+            "exp_needed": current_level * 100,
+            "leveled_up": levels_gained > 0,
+            "new_level": current_level if levels_gained > 0 else None
+        }
+
+    except Exception as e:
+        print(f"Error saving score: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/high-scores")
+async def get_patient_high_scores(current_user: dict = Depends(get_current_user)):
+    """Get high scores for the current user's patient"""
+    try:
+        # Get patient ID for the current user
+        patient = await db.patients.find_one({
+            "$or": [
+                {"user_id": current_user["username"]},
+                {"caretakers": current_user["username"]},
+                {"patient_id": current_user["username"]}
+            ]
+        })
+        
+        if not patient:
+            return JSONResponse(
+                status_code=200,
+                content={"scores": []}
+            )
+        
+        # Get top 10 scores for this patient
+        scores = await db.scores.find(
+            {"patient_id": patient["patient_id"]},
+            {"_id": 0, "game_name": 1, "score": 1, "date": 1, "is_high_score": 1}
+        ).sort("score", -1).limit(10).to_list(None)
+        
+        return {"scores": scores or []}
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=200,
+            content={"scores": []}
+        )
 

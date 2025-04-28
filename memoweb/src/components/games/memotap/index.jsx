@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './MemoTap.module.css';
+import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = 'https://memolane.onrender.com' || 'https://memolane.onrender.com';
+const API_BASE_URL = 'http://localhost:8000' || 'http://localhost:8000';
 
 const COLORS = [
   '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF',
@@ -19,11 +20,10 @@ function MemoTap() {
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [numColors, setNumColors] = useState(4);
-  const [playerName, setPlayerName] = useState('');
-  const [showNameInput, setShowNameInput] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const animationFrameRef = useRef();
   const colorButtonsRef = useRef([]);
+  const navigate = useNavigate();
 
   // Determine number of colors based on round
   const getNumColors = (roundNum) => {
@@ -46,13 +46,28 @@ function MemoTap() {
 
   const fetchHighScores = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/high-scores`);
+      const response = await fetch(`${API_BASE_URL}/api/high-scores`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (!response.ok) {
+        console.error('Failed to fetch high scores');
+        return;
+      }
+      
       const data = await response.json();
-      if (data.scores.length > 0) {
+      
+      // Safely handle the response
+      if (data?.scores?.length > 0) {
         setHighScore(data.scores[0].score);
+      } else {
+        setHighScore(0); // Default high score if none exists
       }
     } catch (error) {
       console.error('Error fetching high scores:', error);
+      setHighScore(0); // Fallback to 0 on error
     }
   };
 
@@ -61,6 +76,7 @@ function MemoTap() {
     setScore(0);
     setRound(1);
     setPlayerInput([]);
+    fetchHighScores();
     await generateSequence(1);
   };
 
@@ -139,36 +155,51 @@ function MemoTap() {
     generateSequence(newRound);
   };
 
-  const gameOver = async (completedAll = false) => {
-    setGameState('over');
-    if (score > 0 || completedAll) {
-      setShowNameInput(true);
-    }
-  };
-
   const saveScore = async () => {
-    if (!playerName.trim()) return;
-
     try {
-      const response = await fetch(`${API_BASE_URL}/save-score`, {
+      const response = await fetch(`${API_BASE_URL}/api/save-score`, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          player_name: playerName,
           score: score,
           rounds_completed: round - 1
         }),
       });
-
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to save score:", errorData);
+        // You could set state here to show an error message to the user
+        throw new Error(errorData.detail || 'Failed to save score');
+      }
+  
       const data = await response.json();
       if (data.is_high_score) {
-        setHighScore(score);
+        // Show a congratulations message for new high score
+        console.log("New high score!");
       }
-      setShowNameInput(false);
+      return data;
     } catch (error) {
-      console.error('Error saving score:', error);
+      console.error("Error saving score:", error);
+      throw error;
+    }
+  };
+
+
+  const gameOver = async (completedAll = false) => {
+    console.log("Game over triggered"); // Debug log
+    setGameState('over');
+    if (score > 0 || completedAll) {
+      console.log("Attempting to save score..."); // Debug log
+      try {
+        await saveScore();
+        console.log("Score saved successfully after game over"); // Debug log
+      } catch (error) {
+        console.error("Failed to save score after game over:", error); // Debug log
+      }
     }
   };
 
@@ -188,6 +219,12 @@ function MemoTap() {
 
   return (
     <div className={styles.memotapContainer}>
+      <button 
+        className={styles.backButton}
+        onClick={() => navigate('/patient')}
+      >
+        Back to Dashboard
+      </button>
       <div className={styles.memotapGame}>
         <h1 className={styles.gameTitle}>MemoTap</h1>
         
@@ -234,23 +271,6 @@ function MemoTap() {
         >
           {renderColorButtons()}
         </div>
-
-        {showNameInput && (
-          <div className={styles.nameInputModal}>
-            <h3>Save Your Score</h3>
-            <input
-              type="text"
-              placeholder="Enter your name"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-            />
-            <button onClick={() => {
-              saveScore();
-              setShowNameInput(false);
-            }}>Save</button>
-            <button onClick={() => setShowNameInput(false)}>Cancel</button>
-          </div>
-        )}
       </div>
     </div>
   );

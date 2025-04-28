@@ -1,0 +1,579 @@
+/* PatientHome.css */
+.patient-home-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .patient-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #4b6cb7;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header-left h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  
+  .header-left p {
+    margin: 0.2rem 0 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  
+  .header-right {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .notification-icon, .profile-icon {
+    position: relative;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+  }
+  
+  .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ff4757;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.7rem;
+  }
+  
+  .patient-nav {
+    display: flex;
+    background-color: white;
+    padding: 0 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .nav-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    font-weight: 500;
+    position: relative;
+  }
+  
+  .nav-button.active {
+    color: #4b6cb7;
+    border-bottom: 2px solid #4b6cb7;
+  }
+  
+  .games-dropdown {
+    position: relative;
+  }
+  
+  .dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    z-index: 1;
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+  }
+  
+  .dropdown-content button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .dropdown-content button:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .patient-main {
+    flex: 1;
+    padding: 2rem;
+  }
+  
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .welcome-section {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+  
+  .welcome-section h2 {
+    margin-top: 0;
+    color: #333;
+  }
+  
+  .progress-section {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+  
+  .level-display {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .level-badge {
+    background-color: #4b6cb7;
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 20px;
+    font-weight: bold;
+    min-width: 80px;
+    text-align: center;
+  }
+  
+  .exp-bar {
+    flex: 1;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .exp-progress {
+    height: 100%;
+    background-color: #4b6cb7;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+  }
+  
+  .exp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .badges-section {
+    margin-top: 2rem;
+  }
+  
+  .badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .badge-item svg {
+    color: #ffd700;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .stat-card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+  }
+  
+  .stat-card svg {
+    font-size: 2rem;
+    color: #4b6cb7;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-card h4 {
+    margin: 0.5rem 0;
+    color: #555;
+  }
+  
+  .stat-card p {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .notifications-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 350px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  
+  .notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 1rem;
+  }
+  
+  .notifications-header button {
+    background: none;
+    border: none;
+    color: #4b6cb7;
+    cursor: pointer;
+  }
+  
+  .notifications-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .notifications-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  
+  .notifications-list li.unread {
+    background-color: #f8f9fa;
+  }
+  
+  .notifications-list li p {
+    margin: 0 0 0.25rem;
+  }
+  
+  .notifications-list li small {
+    color: #777;
+    font-size: 0.8rem;
+  }
+  
+  @media (max-width: 768px) {
+    .patient-header {
+      padding: 1rem;
+    }
+    
+    .patient-nav {
+      padding: 0;
+      justify-content: space-around;
+    }
+    
+    .nav-button {
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .patient-main {
+      padding: 1rem;
+    }
+    
+    .notifications-panel {
+      width: 100%;
+    }
+  }
+  /* Add these styles to your existing PatientHome.css */
+
+.profile-container {
+  position: relative;
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.profile-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: white;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  z-index: 100;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.profile-info {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 0.75rem;
+}
+
+.usern {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.un {
+  font-weight: normal;
+  color: #666;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: #ff4757;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem;
+  text-align: left;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #f8f9fa;
+}
+
+/* Schedule Styles */
+.schedule-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.calendar-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .calendar-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.react-calendar-custom {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.react-calendar-custom .react-calendar__tile--active {
+  background: #4b6cb7;
+  color: white;
+}
+
+.react-calendar-custom .react-calendar__tile--now {
+  background: #f0f0f0;
+}
+
+.schedule-items {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.schedule-items h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.75rem;
+}
+
+.appointments-list,
+.medications-list {
+  margin-top: 1.5rem;
+}
+
+.appointments-list h4,
+.medications-list h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4b6cb7;
+  margin-bottom: 0.75rem;
+}
+
+.appointments-list ul,
+.medications-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.appointments-list li,
+.medications-list li {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.appointments-list li:last-child,
+.medications-list li:last-child {
+  border-bottom: none;
+}
+
+.med-notes {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.25rem 0 0;
+}
+/* Level Up Modal */
+.level-up-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.level-up-content {
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  padding: 2rem;
+  border-radius: 15px;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.level-up-content h1 {
+  font-size: 4rem;
+  margin: 1rem 0;
+}
+
+.level-up-content h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.close-button {
+  background-color: white;
+  color: #6e8efb;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Confetti animation */
+.confetti {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #f00;
+  opacity: 0;
+}
+
+.confetti-piece:nth-child(1) {
+  left: 10%;
+  top: 0;
+  background-color: #f00;
+  animation: confetti 5s ease-in-out infinite;
+}
+
+.confetti-piece:nth-child(2) {
+  left: 20%;
+  top: 0;
+  background-color: #0f0;
+  animation: confetti 3s ease-in-out infinite;
+}
+
+/* Add more confetti pieces as needed... */
+
+@keyframes confetti {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(500px) rotate(360deg); opacity: 0; }
+}
