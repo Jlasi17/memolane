@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaCalendar } from 'react-icons/fa';
 import { FaGamepad, FaUser, FaBell, FaHome, FaTrophy, FaChartLine, FaCalendarAlt, FaPills } from 'react-icons/fa';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';

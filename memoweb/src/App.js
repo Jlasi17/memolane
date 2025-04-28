@@ -5,6 +5,7 @@ import FamilyHome from './components/pages/FamilyHome';
 import LoginForm from './components/Auth/LoginForm';
 import DoctorHome from './components/pages/DoctorHome';
 import MemoTap from './components/games/memotap';
+import PatientHome from './components/pages/PatientHome';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/doctor" element={<DoctorHome />} />
         <Route path="/login" element={<LoginForm />} />
          <Route path="/memotap" element={<MemoTap />} /> 
+         <Route path="/patient" element={<PatientHome />} />
       </Routes>
     </Router>
   );
