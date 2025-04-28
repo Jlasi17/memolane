@@ -201,3 +201,20 @@
     font-size: 2rem;
   }
 }
+.backButton {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 100;
+}
+
+.backButton:hover {
+  background-color: #45a049;
+}
