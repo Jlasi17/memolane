@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaGamepad, FaUser, FaBell, FaHome, FaTrophy, FaChartLine, FaCalendarAlt, FaPills, FaRobot, FaCalendar } from 'react-icons/fa';
+import { FaGamepad, FaUser, FaBell, FaHome, FaTrophy, FaChartLine, FaCalendarAlt, FaPills,FaRobot  } from 'react-icons/fa';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './PatientHome.css';
 
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
-
-// TODO:
 const ChatbotButton = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -642,11 +640,7 @@ try {
                         ></div>
                         <span className="exp-text">
                           {gameUser.exp}/{gameUser.level * 100} EXP
-                          {gameUser.exp < gameUser.level * 100 && (
-                            <span className="exp-remaining">
-                              ({gameUser.level * 100 - gameUser.exp} to next level)
-                            </span>
-                          )}
+                          {gameUser.exp < gameUser.level * 100 }
                         </span>
                       </div>
                     </div>
@@ -829,8 +823,7 @@ try {
           )}
         </div>
       )}
-      <ChatbotButton /> 
-      {/* TODO: */}
+      <ChatbotButton />
     </div>
   );
 };
