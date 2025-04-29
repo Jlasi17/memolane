@@ -46,7 +46,7 @@ function MemoTap() {
 
   const fetchHighScores = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/high-scores`, {
+      const response = await fetch(`${API_BASE_URL}/api/high-scores?game_name=memotap`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -61,7 +61,14 @@ function MemoTap() {
       
       // Safely handle the response
       if (data?.scores?.length > 0) {
-        setHighScore(data.scores[0].score);
+        // Find the highest score for memotap
+        const memoTapScores = data.scores.filter(score => score.game_name === 'memotap');
+        if (memoTapScores.length > 0) {
+          const highestScore = Math.max(...memoTapScores.map(score => score.score));
+          setHighScore(highestScore);
+        } else {
+          setHighScore(0);
+        }
       } else {
         setHighScore(0); // Default high score if none exists
       }
@@ -223,7 +230,7 @@ function MemoTap() {
         className={styles.backButton}
         onClick={() => navigate('/patient')}
       >
-        Back to Dashboard
+        ← Back to Dashboard
       </button>
       <div className={styles.memotapGame}>
         <h1 className={styles.gameTitle}>MemoTap</h1>

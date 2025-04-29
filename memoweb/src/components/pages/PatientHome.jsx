@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaCalendar } from 'react-icons/fa';
 import { FaGamepad, FaUser, FaBell, FaHome, FaTrophy, FaChartLine, FaCalendarAlt, FaPills } from 'react-icons/fa';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -564,7 +563,7 @@ try {
           
           {showGamesDropdown && (
             <div className="dropdown-content">
-              <button onClick={() => handleGameSelect('memory')}>Memory Match</button>
+              <button onClick={() => handleGameSelect('cardgame')}>Memory Match</button>
               <button onClick={() => handleGameSelect('memotap')}>Memo Tap</button>
               <button onClick={() => handleGameSelect('puzzle')}>Puzzle Solver</button>
             </div>
@@ -609,11 +608,7 @@ try {
                         ></div>
                         <span className="exp-text">
                           {gameUser.exp}/{gameUser.level * 100} EXP
-                          {gameUser.exp < gameUser.level * 100 && (
-                            <span className="exp-remaining">
-                              ({gameUser.level * 100 - gameUser.exp} to next level)
-                            </span>
-                          )}
+                          {gameUser.exp < gameUser.level * 100 }
                         </span>
                       </div>
                     </div>

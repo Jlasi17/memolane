@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/memolane/static/css/main.3dd95a50.css",
-    "main.js": "/memolane/static/js/main.a2c5439d.js",
+    "main.css": "/memolane/static/css/main.6edf6422.css",
+    "main.js": "/memolane/static/js/main.0060f685.js",
     "index.html": "/memolane/index.html",
-    "main.3dd95a50.css.map": "/memolane/static/css/main.3dd95a50.css.map",
-    "main.a2c5439d.js.map": "/memolane/static/js/main.a2c5439d.js.map"
+    "main.6edf6422.css.map": "/memolane/static/css/main.6edf6422.css.map",
+    "main.0060f685.js.map": "/memolane/static/js/main.0060f685.js.map"
   },
   "entrypoints": [
-    "static/css/main.3dd95a50.css",
-    "static/js/main.a2c5439d.js"
+    "static/css/main.6edf6422.css",
+    "static/js/main.0060f685.js"
   ]
 }
