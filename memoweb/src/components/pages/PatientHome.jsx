@@ -1,12 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaGamepad, FaUser, FaBell, FaHome, FaTrophy, FaChartLine, FaCalendarAlt, FaPills } from 'react-icons/fa';
+import { FaGamepad, FaUser, FaBell, FaHome, FaTrophy, FaChartLine, FaCalendarAlt, FaPills,FaRobot  } from 'react-icons/fa';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './PatientHome.css';
 
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+
+// TODO:
+const ChatbotButton = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className={`chatbot-container ${isOpen ? 'open' : ''}`}>
+      {isOpen ? (
+        <div className="chatbot-window">
+          <div className="chatbot-header">
+            <h3>Memory Lane Assistant</h3>
+            <button onClick={() => setIsOpen(false)}>×</button>
+          </div>
+          <div className="chatbot-messages">
+            <div className="chatbot-message">
+              <p>Hello! How can I help you today?</p>
+            </div>
+          </div>
+          <div className="chatbot-input">
+            <input type="text" placeholder="Type your message..." />
+            <button>Send</button>
+          </div>
+        </div>
+      ) : (
+        <button 
+          className="chatbot-button"
+          onClick={() => setIsOpen(true)}
+        >
+          <FaRobot size={24} />
+        </button>
+      )}
+    </div>
+  );
+};
 
 const PatientHome = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -791,6 +825,8 @@ try {
           )}
         </div>
       )}
+      <ChatbotButton /> 
+      {/* TODO: */}
     </div>
   );
 };
