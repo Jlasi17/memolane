@@ -52,6 +52,12 @@ cloudinary.config(
   secure=True
 )
 
+UPLOAD_DIR = "uploads/images"
+Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
+
+# Configure upload directory
+UPLOAD_DIR2 = "uploads/mri_scans"
+Path(UPLOAD_DIR2).mkdir(parents=True, exist_ok=True)
 
 # CORS Configuration
 app.add_middleware(
@@ -1407,6 +1413,9 @@ async def generate_sequence(round_number: int):
     }
 
 
+# TODO:patient home all the new fuctions 
+
+
 # Add this to your models section
 class GameUser(BaseModel):
     patient_id: str
@@ -1684,175 +1693,3 @@ async def get_patient_high_scores(current_user: dict = Depends(get_current_user)
             content={"scores": []}
         )
 
-@app.get("/api/game_user/current")
-async def get_current_game_user(current_user: dict = Depends(get_current_user)):
-    """Get the current user's game profile"""
-    try:
-        # Use the current user's username as the patient_id
-        patient_id = current_user["username"]
-        
-        game_user = await db.game_users.find_one({"patient_id": patient_id})
-        if not game_user:
-            # Create a default profile if none exists
-            game_user = {
-                "patient_id": patient_id,
-                "name": current_user.get("name", "Player"),
-                "level": 1,
-                "exp": 0,
-                "badges": [],
-                "games_played": {},
-                "created_at": datetime.utcnow(),
-                "last_played": None
-            }
-            await db.game_users.insert_one(game_user)
-        print("assadsas",game_user.level)
-        return convert_mongo_doc(game_user)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
-
-@app.post("/api/save-memory-score")
-async def save_memory_score(
-    score_data: dict,
-    current_user: dict = Depends(get_current_user)
-):
-    """Save score for memory matching game with level-based difficulty"""
-    try:
-        # Validate input
-        required_fields = ["score", "level", "time", "matches", "difficulty"]
-        if not all(key in score_data for key in required_fields):
-            raise HTTPException(status_code=400, detail="Missing required score data")
-        
-        # Get or create game user profile
-        game_user = await db.game_users.find_one({"patient_id": current_user["username"]})
-        
-        if not game_user:
-            game_user = {
-                "patient_id": current_user["username"],
-                "name": current_user.get("name", "Player"),
-                "level": 1,
-                "exp": 0,
-                "badges": [],
-                "games_played": {"memory_match": 0},
-                "created_at": datetime.utcnow()
-            }
-            await db.game_users.insert_one(game_user)
-
-        # Check if this is a new high score for this difficulty
-        high_score = await db.scores.find_one(
-            {
-                "patient_id": current_user["username"],
-                "game_name": "memory_match",
-                "difficulty": score_data["difficulty"]
-            },
-            sort=[("score", -1)]
-        )
-
-        is_high_score = not high_score or score_data["score"] > high_score["score"]
-        
-        # Calculate EXP based on performance (matches + time bonus)
-        base_exp = score_data["matches"] * 5
-        time_bonus = min(50, max(0, (score_data["time_limit"] - score_data["time"]) // 10))
-        exp_to_add = base_exp + time_bonus
-        
-        current_exp = game_user.get("exp", 0)
-        current_level = game_user.get("level", 1)
-        
-        # Handle level progression
-        new_exp = current_exp + exp_to_add
-        levels_gained = 0
-        
-        while new_exp >= current_level * 100:
-            new_exp -= current_level * 100
-            current_level += 1
-            levels_gained += 1
-
-        # Save the score
-        score_doc = {
-            "patient_id": current_user["username"],
-            "game_name": "memory_match",
-            "score": score_data["score"],
-            "level": score_data["level"],
-            "difficulty": score_data["difficulty"],
-            "time": score_data["time"],
-            "time_limit": score_data["time_limit"],
-            "matches": score_data["matches"],
-            "moves": score_data.get("moves", 0),
-            "date": datetime.utcnow(),
-            "is_high_score": is_high_score
-        }
-        await db.scores.insert_one(score_doc)
-
-        # Update player profile
-        update_data = {
-            "$inc": {
-                f"games_played.memory_match": 1,
-                "exp": exp_to_add
-            },
-            "$set": {
-                "level": current_level,
-                "last_played": datetime.utcnow()
-            }
-        }
-        
-        if is_high_score:
-            update_data["$set"][f"high_scores.memory_match_{score_data['difficulty']}"] = score_data["score"]
-        
-        if levels_gained > 0:
-            update_data["$addToSet"] = {
-                "badges": {
-                    "$each": [f"Memory Master L{current_level - i}" for i in range(levels_gained)]
-                }
-            }
-
-        await db.game_users.update_one(
-            {"patient_id": current_user["username"]},
-            update_data
-        )
-
-        return {
-            "success": True,
-            "new_level": current_level,
-            "exp_gained": exp_to_add,
-            "is_high_score": is_high_score,
-            "levels_gained": levels_gained
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/api/memory-high-scores")
-async def get_memory_high_scores(
-    difficulty: Optional[str] = None,
-    limit: int = 10,
-    current_user: dict = Depends(get_current_user)
-):
-    """Get high scores for memory matching game, optionally filtered by difficulty"""
-    try:
-        query = {
-            "patient_id": current_user["username"],
-            "game_name": "memory_match"
-        }
-        
-        if difficulty:
-            query["difficulty"] = difficulty
-        
-        scores = await db.scores.find(
-            query,
-            {
-                "_id": 0,
-                "score": 1,
-                "level": 1,
-                "difficulty": 1,
-                "time": 1,
-                "time_limit": 1,
-                "matches": 1,
-                "moves": 1,
-                "date": 1
-            }
-        ).sort([("score", -1), ("time", 1)]).limit(limit).to_list(None)
-        
-        return {"scores": scores or []}
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
