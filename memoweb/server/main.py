@@ -15,7 +15,7 @@ import os
 import bcrypt
 from datetime import datetime, timedelta
 import jwt
-from typing import Optional, List
+from typing import Optional, List, Dist
 from pydantic import BaseModel, Field, EmailStr, field_validator
 import re
 import io
@@ -1414,7 +1414,7 @@ class GameUser(BaseModel):
     level: int = 1
     exp: int = 0
     badges: List[str] = Field(default_factory=list)
-    games_played: dict[str, int] = Field(default_factory=dict)
+    games_played: Dict[str, int] = Field(default_factory=dict)
     created_at: datetime = datetime.utcnow()
     last_played: Optional[datetime] = None
 
