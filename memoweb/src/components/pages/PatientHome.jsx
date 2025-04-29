@@ -597,7 +597,7 @@ try {
           
           {showGamesDropdown && (
             <div className="dropdown-content">
-              <button onClick={() => handleGameSelect('memory')}>Memory Match</button>
+              <button onClick={() => handleGameSelect('cardgame')}>Memory Match</button>
               <button onClick={() => handleGameSelect('memotap')}>Memo Tap</button>
               <button onClick={() => handleGameSelect('puzzle')}>Puzzle Solver</button>
             </div>
