@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/memolane/static/css/main.ff3dfc53.css",
+    "main.js": "/memolane/static/js/main.f9f1c2e1.js",
+    "index.html": "/memolane/index.html",
+    "main.ff3dfc53.css.map": "/memolane/static/css/main.ff3dfc53.css.map",
+    "main.f9f1c2e1.js.map": "/memolane/static/js/main.f9f1c2e1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ff3dfc53.css",
+    "static/js/main.f9f1c2e1.js"
+  ]
+}
